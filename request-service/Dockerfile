@@ -11,8 +11,8 @@ FROM python:3.12-slim AS runtime
 WORKDIR /app
 COPY --from=deps /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=deps /usr/local/bin /usr/local/bin
-COPY utils/logger.py .
-COPY request-service/main.py .
+COPY utils/ ./utils/
+COPY request-service/ .
 ENV APP_ENV=development
 EXPOSE 8000
 CMD ["sh", "-c", "if [ \"$APP_ENV\" = \"production\" ]; \

@@ -1,22 +1,27 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
-from logger import get_logger
-
+from utils.logger import get_logger
+from database import create_tables
+from api.v1.requests import router as requests_router
 
 logger = get_logger("request-service")
 
 
-# Lifespan
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Request service starting up...")
+    create_tables()
+    logger.info("Database tables verified")
     yield
     logger.info("Request service shutting down...")
 
 
 # FastAPI App
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, redirect_slashes=False)
+
+
+app.include_router(requests_router, prefix="/api/v1")
 
 
 # Custom Exception

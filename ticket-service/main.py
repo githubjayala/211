@@ -2,7 +2,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from utils.logger import get_logger
-
+from database import create_tables
+from api.v1.tickets import router as tickets_router
 
 logger = get_logger("ticket-service")
 
@@ -11,12 +12,15 @@ logger = get_logger("ticket-service")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Ticket service starting up...")
+    create_tables()
+    logger.info("Database tables verified")
     yield
     logger.info("Ticket service shutting down...")
 
 
 # FastAPI App
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, redirect_slashes=False)
+app.include_router(tickets_router, prefix="/api/v1")
 
 
 # Custom Exception

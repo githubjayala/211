@@ -115,6 +115,8 @@ services:
     expose:
       - "8000"
     depends_on:
+      postgres:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     networks:

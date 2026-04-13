@@ -1,7 +1,9 @@
+from api.v1 import locations
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from utils.logger import get_logger
+from api.v1.locations import router as location_router
 
 
 logger = get_logger("location-service")
@@ -16,7 +18,8 @@ async def lifespan(app: FastAPI):
 
 
 # FastAPI App
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, redirect_slashes=False)
+app.include_router(location_router, prefix="/api/v1")
 
 
 # Custom Exception

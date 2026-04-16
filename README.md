@@ -77,7 +77,7 @@ Used for fire‑and‑forget operations — e.g., notifications that should not 
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/211.git
+git clone https://github.com/githubjose/211.git
 cd 211
 ```
 

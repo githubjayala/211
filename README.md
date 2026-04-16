@@ -15,12 +15,19 @@ API design, event-driven communication, and data privacy principles.
 
 
 ## Architecture
+
+```
 Citizen
   ↓ HTTP POST /api/v1/requests
 Gateway (port 8000)
   ├── REST → location-service (Nominatim geocoding)
   ├── REST → request-service (save to Postgres)
   └── RabbitMQ → notification-service (async SMS)
+
+request-service → Postgres
+ticket-service  → Postgres
+RabbitMQ broker → notification-service consumer
+```
 
 request-service → Postgres
 ticket-service  → Postgres

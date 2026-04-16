@@ -13,7 +13,7 @@ service = RequestService()
 async def create_request(payload: ServiceRequestCreate):
     try:
         logger.info("POST /requests | correlation_id=%s", payload.correlation_id)
-        result = service.create_request(payload)
+        result = await service.create_request(payload)
         return ServiceRequestResponse(
             correlation_id=result.correlation_id,
             status=result.status.value,

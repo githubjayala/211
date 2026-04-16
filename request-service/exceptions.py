@@ -16,3 +16,9 @@ class DuplicateCorrelationIdException(Exception):
             else "Duplicate correlation_id detected"
         )
         super().__init__(self.message)
+
+
+class PublisherException(Exception):
+    def __init__(self, message: str = "Failed to publish notification"):
+        self.message = message
+        super().__init__(self.message)

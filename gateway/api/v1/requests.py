@@ -4,11 +4,9 @@ from utils.logger import get_logger
 from schemas import CitizenRequest, GatewayResponse
 from auth import verify_token
 from client import validate_address, create_request
-from publisher import publish_notification
 from exceptions import (
     InvalidLocationAddress,
     RequestServiceExceptions,
-    PublisherException,
 )
 
 logger = get_logger("gateway")
@@ -40,11 +38,6 @@ async def submit_request(payload: CitizenRequest, authorization: str = Header(No
     await create_request(request_payload, user["user_id"])
 
     # Step 5 - publish notification
-    await publish_notification(
-        correlation_id=correlation_id,
-        contact=payload.contact,
-        message=f"Your request {correlation_id} has been received",
-    )
 
     # Step 6 - return response
     return GatewayResponse(

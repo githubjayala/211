@@ -2,13 +2,13 @@ from database import SessionLocal
 from models import ServiceRequest
 from repository import RequestRepository
 from utils.logger import get_logger
-
+from publisher import publish_notification
 
 logger = get_logger("request-service")
 
 
 class RequestService:
-    def create_request(self, payload) -> ServiceRequest:
+    async def create_request(self, payload) -> ServiceRequest:
         logger.info(
             "Creating service request | correlation_id=%s", payload.correlation_id
         )
@@ -16,6 +16,12 @@ class RequestService:
         try:
             repo = RequestRepository(db)
             result = repo.create_request(payload)
+            # publish notification
+            await publish_notification(
+                correlation_id=result.correlation_id,
+                contact=payload.contact,
+                message=f"Your request {result.correlation_id} has been received",
+            )
             return result
         except Exception as e:
             db.rollback()

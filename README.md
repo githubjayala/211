@@ -101,7 +101,7 @@ docker ps
 
 Submit a service request:
 ```bash
-curl -X POST http://localhost:8000/api/v1/requests/ \
+curl -X POST https://211.josedevelops.dev/api/v1/requests/ \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer test-token" \
   -d '{

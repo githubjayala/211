@@ -38,13 +38,28 @@
         update_cache: yes
         cache_valid_time: 3600
 
+    - name: Hold Wazuh packages on app server
+      dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      loop:
+        - wazuh-agent
+      when: inventory_hostname in groups['app_servers']
+
+    - name: Hold Wazuh packages on security server
+      dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      loop:
+        - wazuh-manager
+        - wazuh-dashboard
+        - wazuh-indexer
+        - filebeat
+      when: inventory_hostname in groups['security_servers']
+
     - name: Upgrade packages safely
       apt:
         upgrade: safe
-        exclude:
-          - wazuh-*
-          - filebeat
-
     # ── fail2ban ───────────────────────────────────────────────
     - name: Ensure fail2ban is installed
       apt:

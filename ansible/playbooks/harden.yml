@@ -60,6 +60,15 @@
     - name: Upgrade packages safely
       apt:
         upgrade: safe
+
+    # ─filebeat ─────────────────────────────────$
+    - name: Ensure filebeat is running and enabled
+      service:
+        name: filebeat
+        state: started
+        enabled: yes
+      when: inventory_hostname in groups['security_servers']  
+
     # ── fail2ban ───────────────────────────────────────────────
     - name: Ensure fail2ban is installed
       apt:

@@ -1,0 +1,143 @@
+---
+- name: Harden 211 Infrastructure
+  hosts: all
+  become: yes
+  vars:
+    ssh_allowed_macs: "hmac-sha2-256,hmac-sha2-512,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com"
+
+  tasks:
+
+    # ── SSH Hardening ──────────────────────────────────────────
+    - name: Disable root login
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin no'
+        state: present
+      notify: Restart SSH
+
+    - name: Disable password authentication
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+        state: present
+      notify: Restart SSH
+
+    - name: Set strong MAC algorithms
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^MACs'
+        line: 'MACs {{ ssh_allowed_macs }}'
+        state: present
+      notify: Restart SSH
+
+    # ── Package Updates ────────────────────────────────────────
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade packages safely
+      apt:
+        upgrade: safe
+
+    # ── fail2ban ───────────────────────────────────────────────
+    - name: Ensure fail2ban is installed
+      apt:
+        name: fail2ban
+        state: present
+
+    - name: Ensure fail2ban is running and enabled
+      service:
+        name: fail2ban
+        state: started
+        enabled: yes
+
+    - name: Configure fail2ban Nginx jail
+      blockinfile:
+        path: /etc/fail2ban/jail.local
+        marker: "# {mark} ANSIBLE MANAGED - nginx-http-auth"
+        block: |
+          [nginx-http-auth]
+          enabled = true
+          port = http,https
+          logpath = /var/log/nginx/access.log
+          maxretry = 20
+          findtime = 600
+          bantime = 86400
+          filter = nginx-4xx
+
+    - name: Create fail2ban Nginx 4xx filter
+      copy:
+        dest: /etc/fail2ban/filter.d/nginx-4xx.conf
+        content: |
+          [Definition]
+          failregex = ^<HOST> .* "(GET|POST|HEAD).*" (400|401|403|404|405) .*$
+          ignoreregex =
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart fail2ban
+
+    # ── UFW ────────────────────────────────────────────────────
+    - name: Ensure UFW is installed
+      apt:
+        name: ufw
+        state: present
+
+    - name: Ensure SSH is allowed in UFW
+      ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: Ensure UFW is enabled with default deny
+      ufw:
+        state: enabled
+        policy: deny
+
+    # ── Sysctl Hardening ───────────────────────────────────────
+    - name: Enable SYN flood protection
+      sysctl:
+        name: net.ipv4.tcp_syncookies
+        value: '1'
+        state: present
+        reload: yes
+
+    - name: Disable IP source routing
+      sysctl:
+        name: net.ipv4.conf.all.accept_source_route
+        value: '0'
+        state: present
+        reload: yes
+
+    - name: Disable ICMP redirects
+      sysctl:
+        name: net.ipv4.conf.all.accept_redirects
+        value: '0'
+        state: present
+        reload: yes
+
+    - name: Ignore ICMP broadcast requests
+      sysctl:
+        name: net.ipv4.icmp_echo_ignore_broadcasts
+        value: '1'
+        state: present
+        reload: yes
+
+    # ── Unattended Upgrades ────────────────────────────────────
+    - name: Ensure unattended-upgrades is installed
+      apt:
+        name: unattended-upgrades
+        state: present
+
+  handlers:
+    - name: Restart SSH
+      service:
+        name: ssh
+        state: restarted
+
+    - name: Restart fail2ban
+      service:
+        name: fail2ban
+        state: restarted

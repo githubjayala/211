@@ -1,6 +1,5 @@
 # .github/workflows/deploy.yml
 name: Deploy to Production
-
 on:
   push:
     branches:
@@ -9,7 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,3 +24,26 @@ jobs:
             docker compose down
             docker compose up -d --build
             docker compose ps
+
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
+      - name: Set up SSH key for Ansible
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.ANSIBLE_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan ${{ secrets.APP_SERVER_IP }} >> ~/.ssh/known_hosts
+          ssh-keyscan ${{ secrets.SECURITY_SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Run Ansible hardening playbook
+        run: |
+          ansible-playbook -i ansible/inventory/hosts.yml \
+            ansible/playbooks/harden.yml
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: False
+          APP_SERVER_IP: ${{ secrets.APP_SERVER_IP }}
+          SECURITY_SERVER_IP: ${{ secrets.SECURITY_SERVER_IP }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}

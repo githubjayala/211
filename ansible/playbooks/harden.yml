@@ -41,6 +41,9 @@
     - name: Upgrade packages safely
       apt:
         upgrade: safe
+        exclude:
+          - wazuh-*
+          - filebeat
 
     # ── fail2ban ───────────────────────────────────────────────
     - name: Ensure fail2ban is installed

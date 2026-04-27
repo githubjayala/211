@@ -37,6 +37,14 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan ${{ secrets.APP_SERVER_IP }} >> ~/.ssh/known_hosts
           ssh-keyscan ${{ secrets.SECURITY_SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Debug SSH key
+        run: |
+          echo "Key length: $(wc -c < ~/.ssh/id_rsa)"
+          echo "Key first line: $(head -1 ~/.ssh/id_rsa)"
+          echo "Key last line: $(tail -1 ~/.ssh/id_rsa)"
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o BatchMode=yes deploy@${{ secrets.APP_SERVER_IP }} echo "SSH works" || echo "SSH failed"
+      
       - name: Run Ansible hardening playbook
         run: |
           ansible-playbook -i ansible/inventory/hosts.yml \

@@ -2,6 +2,8 @@
 - name: Harden 211 Infrastructure
   hosts: all
   become: yes
+  vars_files:
+    - ../vars/secrets.yml
   vars:
     ssh_allowed_macs: "hmac-sha2-256,hmac-sha2-512,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com"
 
@@ -61,13 +63,13 @@
       apt:
         upgrade: safe
 
-    # ─filebeat ─────────────────────────────────$
+    # ── Filebeat ───────────────────────────────────────────────
     - name: Ensure filebeat is running and enabled
       service:
         name: filebeat
         state: started
         enabled: yes
-      when: inventory_hostname in groups['security_servers']  
+      when: inventory_hostname in groups['security_servers']
 
     # ── fail2ban ───────────────────────────────────────────────
     - name: Ensure fail2ban is installed
@@ -157,6 +159,77 @@
       apt:
         name: unattended-upgrades
         state: present
+
+    # ── Per-service env file deployment ───────────────────────
+    - name: Deploy gateway env
+      template:
+        src: ../templates/env.gateway.j2
+        dest: "/home/deploy/211/.env.gateway"
+        owner: "deploy"
+        group: "deploy"
+        mode: '0600'
+      when: inventory_hostname in groups['app_servers']
+      no_log: false
+
+    - name: Deploy request-service env
+      template:
+        src: ../templates/env.request-service.j2
+        dest: "/home/deploy/211/.env.request-service"
+        owner: "deploy"
+        group: "deploy"
+        mode: '0600'
+      when: inventory_hostname in groups['app_servers']
+      no_log: false
+
+    - name: Deploy notification-service env
+      template:
+        src: ../templates/env.notification-service.j2
+        dest: "/home/deploy/211/.env.notification-service"
+        owner: "deploy"
+        group: "deploy"
+        mode: '0600'
+      when: inventory_hostname in groups['app_servers']
+      no_log: false
+
+    - name: Deploy location-service env
+      template:
+        src: ../templates/env.location-service.j2
+        dest: "/home/deploy/211/.env.location-service"
+        owner: "deploy"
+        group: "deploy"
+        mode: '0600'
+      when: inventory_hostname in groups['app_servers']
+      no_log: false
+
+    - name: Deploy ticket-service env
+      template:
+        src: ../templates/env.ticket-service.j2
+        dest: "/home/deploy/211/.env.ticket-service"
+        owner: "deploy"
+        group: "deploy"
+        mode: '0600'
+      when: inventory_hostname in groups['app_servers']
+      no_log: false
+
+    - name: Deploy postgres env
+      template:
+        src: ../templates/env.postgres.j2
+        dest: "/home/deploy/211/.env.postgres"
+        owner: "deploy"
+        group: "deploy"
+        mode: '0600'
+      when: inventory_hostname in groups['app_servers']
+      no_log: false
+
+    - name: Deploy rabbitmq env
+      template:
+        src: ../templates/env.rabbitmq.j2
+        dest: "/home/deploy/211/.env.rabbitmq"
+        owner: "deploy"
+        group: "deploy"
+        mode: '0600'
+      when: inventory_hostname in groups['app_servers']
+      no_log: false
 
   handlers:
     - name: Restart SSH

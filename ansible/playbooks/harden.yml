@@ -169,7 +169,7 @@
         group: "deploy"
         mode: '0600'
       when: inventory_hostname in groups['app_servers']
-      no_log: false
+      no_log: true
 
     - name: Deploy request-service env
       template:
@@ -179,7 +179,7 @@
         group: "deploy"
         mode: '0600'
       when: inventory_hostname in groups['app_servers']
-      no_log: false
+      no_log: true
 
     - name: Deploy notification-service env
       template:
@@ -189,7 +189,7 @@
         group: "deploy"
         mode: '0600'
       when: inventory_hostname in groups['app_servers']
-      no_log: false
+      no_log: true
 
     - name: Deploy location-service env
       template:
@@ -199,7 +199,7 @@
         group: "deploy"
         mode: '0600'
       when: inventory_hostname in groups['app_servers']
-      no_log: false
+      no_log: true
 
     - name: Deploy ticket-service env
       template:
@@ -209,7 +209,7 @@
         group: "deploy"
         mode: '0600'
       when: inventory_hostname in groups['app_servers']
-      no_log: false
+      no_log: true
 
     - name: Deploy postgres env
       template:
@@ -219,7 +219,7 @@
         group: "deploy"
         mode: '0600'
       when: inventory_hostname in groups['app_servers']
-      no_log: false
+      no_log: true
 
     - name: Deploy rabbitmq env
       template:
@@ -229,7 +229,7 @@
         group: "deploy"
         mode: '0600'
       when: inventory_hostname in groups['app_servers']
-      no_log: false
+      no_log: true
 
   handlers:
     - name: Restart SSH

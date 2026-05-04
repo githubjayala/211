@@ -14,3 +14,12 @@ venv/
 
 # Mac
 .DS_Store
+
+# Per-service env files (never commit real values)
+.env.gateway
+.env.request-service
+.env.notification-service
+.env.location-service
+.env.ticket-service
+.env.postgres
+.env.rabbitmq

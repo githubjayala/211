@@ -1,4 +1,3 @@
-
 # Networks
 networks:
   civic_net:
@@ -19,7 +18,7 @@ services:
       dockerfile: gateway/Dockerfile
     container_name: 211_gateway
     restart: unless-stopped
-    env_file: .env
+    env_file: .env.gateway
     depends_on:
       request-service:
         condition: service_healthy
@@ -30,7 +29,8 @@ services:
       ticket-service:
         condition: service_healthy
     ports:
-      - "127.0.0.1:8000:8000"   # public in dev, removed in prod
+      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8000:8000"
     networks:
       - civic_net
     healthcheck:
@@ -46,9 +46,9 @@ services:
       dockerfile: request-service/Dockerfile
     container_name: 211_request_service
     restart: unless-stopped
-    env_file: .env
+    env_file: .env.request-service
     expose:
-      - "8000"        # internal only
+      - "8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -69,7 +69,7 @@ services:
       dockerfile: notification-service/Dockerfile
     container_name: 211_notification_service
     restart: unless-stopped
-    env_file: .env
+    env_file: .env.notification-service
     expose:
       - "8000"
     depends_on:
@@ -83,14 +83,14 @@ services:
       timeout: 3s
       retries: 5
 
-  # location-service Service
+  # Location Service
   location-service:
     build:
       context: .
       dockerfile: location-service/Dockerfile
     container_name: 211_location_service
     restart: unless-stopped
-    env_file: .env
+    env_file: .env.location-service
     expose:
       - "8000"
     depends_on:
@@ -104,14 +104,14 @@ services:
       timeout: 3s
       retries: 5
 
-  # ticket-service Service
+  # Ticket Service
   ticket-service:
     build:
       context: .
       dockerfile: ticket-service/Dockerfile
     container_name: 211_ticket_service
     restart: unless-stopped
-    env_file: .env
+    env_file: .env.ticket-service
     expose:
       - "8000"
     depends_on:
@@ -132,9 +132,9 @@ services:
     container_name: 211_postgres
     image: postgres:16
     restart: unless-stopped
-    env_file: .env
+    env_file: .env.postgres
     ports:
-      - "127.0.0.1:5432:5432"   # dev only — removed in prod
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -149,13 +149,11 @@ services:
   rabbitmq:
     container_name: 211_rabbitmq
     image: rabbitmq:3-management
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}    
+    env_file: .env.rabbitmq
     restart: unless-stopped
     ports:
-      - "127.0.0.1:5672:5672"     # AMQP — dev only
-      - "127.0.0.1:15672:15672"   # mgmt UI — dev only
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
@@ -165,4 +163,3 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-

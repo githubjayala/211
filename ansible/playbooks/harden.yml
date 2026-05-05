@@ -36,6 +36,7 @@
 
     # ── Package Updates ────────────────────────────────────────
     - name: Update apt cache
+      ignore_errors: true
       apt:
         update_cache: yes
         cache_valid_time: 3600

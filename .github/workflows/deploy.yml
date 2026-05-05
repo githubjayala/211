@@ -27,9 +27,9 @@ jobs:
       - name: Deploy Nginx config
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.DROPLET_IP }}
-          username: ${{ secrets.DROPLET_USER }}
-          key: ${{ secrets.DROPLET_SSH_KEY }}
+          host: ${{ secrets.APP_SERVER_IP }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.ANSIBLE_SSH_KEY }}
           script: |
             sudo cp ~/211/nginx/211.conf /etc/nginx/sites-enabled/211
             sudo nginx -t && sudo systemctl reload nginx

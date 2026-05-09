@@ -110,6 +110,25 @@
         mode: '0644'
       notify: Restart fail2ban
 
+    # ── cicd-runner permissions ────────────────────────────────
+    - name: Add cicd-runner to docker group
+      user:
+        name: cicd-runner
+        groups: docker
+        append: yes
+      when: inventory_hostname in groups['app_servers']
+
+    - name: Scope cicd-runner sudo to nginx and cp only
+      copy:
+        dest: /etc/sudoers.d/cicd-runner
+        content: |
+          cicd-runner ALL=(ALL) NOPASSWD: /usr/sbin/nginx, /usr/bin/cp
+        owner: root
+        group: root
+        mode: '0440'
+        validate: /usr/sbin/visudo -cf %s
+      when: inventory_hostname in groups['app_servers']
+
     # ── UFW ────────────────────────────────────────────────────
     - name: Ensure UFW is installed
       apt:
@@ -160,3 +179,14 @@
       apt:
         name: unattended-upgrades
         state: present
+
+  handlers:
+    - name: Restart SSH
+      service:
+        name: sshd
+        state: restarted
+
+    - name: Restart fail2ban
+      service:
+        name: fail2ban
+        state: restarted

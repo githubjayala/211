@@ -58,12 +58,27 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     )
 
 
-# Health Endpoint
 @app.get("/health")
 async def health():
+    import os
+    import aio_pika
+
+    checks = {}
+
     try:
-        logger.info("Health check invoked")
-        return {"status": "ok"}
-    except Exception as exc:
-        logger.error("Health check failure: %s", exc)
-        raise NotificationServiceException("Health check failed", status_code=500)
+        conn = await aio_pika.connect_robust(os.getenv("RABBITMQ_URL"))
+        await conn.close()
+        checks["rabbitmq"] = "ok"
+    except Exception as e:
+        logger.error("Health check — RabbitMQ unreachable: %s", e)
+        checks["rabbitmq"] = "unreachable"
+
+    all_ok = all(v == "ok" for v in checks.values())
+
+    return JSONResponse(
+        status_code=200 if all_ok else 503,
+        content={
+            "status": "ok" if all_ok else "degraded",
+            "checks": checks,
+        },
+    )

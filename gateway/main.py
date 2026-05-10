@@ -3,6 +3,9 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from utils.logger import get_logger
 from api.v1.requests import router as request_router
+import os
+import httpx
+
 
 logger = get_logger("gateway")
 
@@ -58,9 +61,32 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 # Health Endpoint
 @app.get("/health")
 async def health():
-    try:
-        logger.info("Health check invoked")
-        return {"status": "ok"}
-    except Exception as exc:
-        logger.error("Health check failure: %s", exc)
-        raise GatewayException("Health check failed", status_code=500)
+    checks = {}
+
+    services = {
+        "request-service": os.getenv("REQUEST_SERVICE_URL", "").replace(
+            "/api/v1/requests", "/health"
+        ),
+        "location-service": os.getenv("LOCATION_SERVICE_URL", "").replace(
+            "/api/v1/locations", "/health"
+        ),
+    }
+
+    for name, url in services.items():
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url, timeout=3.0)
+            checks[name] = "ok" if response.status_code == 200 else "degraded"
+        except Exception as e:
+            logger.error("Health check — %s unreachable: %s", name, e)
+            checks[name] = "unreachable"
+
+    all_ok = all(v == "ok" for v in checks.values())
+
+    return JSONResponse(
+        status_code=200 if all_ok else 503,
+        content={
+            "status": "ok" if all_ok else "degraded",
+            "checks": checks,
+        },
+    )

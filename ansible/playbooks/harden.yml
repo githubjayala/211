@@ -118,11 +118,18 @@
         append: yes
       when: inventory_hostname in groups['app_servers']
 
-    - name: Scope cicd-runner sudo to nginx and cp only
+    - name: Allow traversal of deploy home directory
+      file:
+        path: /home/deploy
+        mode: o+x
+        state: directory
+      when: inventory_hostname in groups['app_servers']
+
+    - name: Scope cicd-runner sudo to nginx, cp, systemctl only
       copy:
         dest: /etc/sudoers.d/cicd-runner
         content: |
-          cicd-runner ALL=(ALL) NOPASSWD: /usr/sbin/nginx, /usr/bin/cp
+          cicd-runner ALL=(ALL) NOPASSWD: /usr/sbin/nginx, /usr/bin/cp, /usr/bin/systemctl
         owner: root
         group: root
         mode: '0440'

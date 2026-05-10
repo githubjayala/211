@@ -29,6 +29,7 @@ jobs:
           username: ${{ secrets.DROPLET_USER }}
           key: ${{ secrets.DROPLET_SSH_KEY }}
           script: |
+            whoami
             sudo cp /home/deploy/211/nginx/211.conf /etc/nginx/sites-enabled/211
             sudo nginx -t && sudo systemctl reload nginx
       - name: Install Ansible

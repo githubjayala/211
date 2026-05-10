@@ -64,12 +64,8 @@ async def health():
     checks = {}
 
     services = {
-        "request-service": os.getenv("REQUEST_SERVICE_URL", "").replace(
-            "/api/v1/requests", "/health"
-        ),
-        "location-service": os.getenv("LOCATION_SERVICE_URL", "").replace(
-            "/api/v1/locations", "/health"
-        ),
+        "request-service": "http://request-service:8000/health",
+        "location-service": "http://location-service:8000/health",
     }
 
     for name, url in services.items():

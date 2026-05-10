@@ -46,9 +46,11 @@ jobs:
       - name: Run Ansible hardening playbook
         run: |
           ansible-playbook -i ansible/inventory/hosts.yml \
-            ansible/playbooks/harden.yml
+            ansible/playbooks/harden.yml \
+            --become-method=sudo
         env:
           ANSIBLE_HOST_KEY_CHECKING: False
+          ANSIBLE_BECOME_ASK_PASS: False
           APP_SERVER_IP: ${{ secrets.APP_SERVER_IP }}
           SECURITY_SERVER_IP: ${{ secrets.SECURITY_SERVER_IP }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_USER: ${{ secrets.DROPLET_USER }}

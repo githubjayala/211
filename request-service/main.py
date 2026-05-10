@@ -1,8 +1,9 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
+from sqlalchemy import text
 from utils.logger import get_logger
-from database import create_tables
+from database import create_tables, engine
 from api.v1.requests import router as requests_router
 
 logger = get_logger("request-service")
@@ -61,10 +62,22 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 
 # Health Endpoint
 @app.get("/health")
-async def health():
+def health():
+    checks = {}
     try:
-        logger.info("Health check invoked")
-        return {"status": "ok"}
-    except Exception as exc:
-        logger.error("Health check failure: %s", exc)
-        raise RequestServiceException("Health check failed", status_code=500)
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        checks["database"] = "ok"
+    except Exception as e:
+        logger.error("Health check - database unreachable: %s", e)
+        checks["database"] = "unreachable"
+
+    all_ok = all(v == "ok" for v in checks.values())
+
+    return JSONResponse(
+        status_code=200 if all_ok else 503,
+        content={
+            "status": "ok" if all_ok else "degraded",
+            "checks": checks,
+        },
+    )

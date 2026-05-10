@@ -125,11 +125,11 @@
         state: directory
       when: inventory_hostname in groups['app_servers']
 
-    - name: Scope cicd-runner sudo to nginx, cp, systemctl only
+    - name: Scope cicd-runner sudo to NOPASSWD ALL
       copy:
         dest: /etc/sudoers.d/cicd-runner
         content: |
-          cicd-runner ALL=(ALL) NOPASSWD: /usr/sbin/nginx, /usr/bin/cp, /usr/bin/systemctl
+          cicd-runner ALL=(ALL) NOPASSWD: ALL
         owner: root
         group: root
         mode: '0440'

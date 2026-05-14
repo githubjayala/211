@@ -125,6 +125,22 @@
         state: directory
       when: inventory_hostname in groups['app_servers']
 
+    - name: Transfer repo ownership to cicd-runner
+      file:
+        path: /home/deploy/211
+        owner: cicd-runner
+        group: cicd-runner
+        recurse: yes
+        state: directory
+      when: inventory_hostname in groups['app_servers']
+
+    - name: Add deploy to cicd-runner group
+      user:
+        name: deploy
+        groups: cicd-runner
+        append: yes
+      when: inventory_hostname in groups['app_servers']
+
     - name: Scope cicd-runner sudo to NOPASSWD ALL
       copy:
         dest: /etc/sudoers.d/cicd-runner

@@ -1,0 +1,35 @@
+# docker-compose.override.yml
+# LOCAL DEVELOPMENT ONLY — auto-loaded by docker compose locally
+# NEVER used on the server — server uses docker-compose.yml only
+#
+# WHAT: Overrides base config for local dev
+# WHY:  Exposes service ports locally for testing,
+#       keeps prod compose clean and unchanged
+
+services:
+  gateway:
+    ports:
+      - "127.0.0.1:8000:8000"
+  request-service:
+    ports:
+      - "127.0.0.1:8001:8000"
+
+  ticket-service:
+    ports:
+      - "127.0.0.1:8002:8000"
+
+  notification-service:
+    ports:
+      - "127.0.0.1:8003:8000"
+
+  location-service:
+    ports:
+      - "127.0.0.1:8004:8000"
+  postgres:
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  rabbitmq:
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"

@@ -1,0 +1,29 @@
+# docker-compose.prod.yml
+# PRODUCTION ONLY — loaded explicitly on the server
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# WHAT: Production-specific overrides
+# WHY:  Keeps prod concerns separate from base config
+#       restart policies, logging, worker counts
+
+services:
+  gateway:
+    restart: unless-stopped
+
+  request-service:
+    restart: unless-stopped
+
+  ticket-service:
+    restart: unless-stopped
+
+  notification-service:
+    restart: unless-stopped
+
+  location-service:
+    restart: unless-stopped
+
+  postgres:
+    restart: unless-stopped
+
+  rabbitmq:
+    restart: unless-stopped

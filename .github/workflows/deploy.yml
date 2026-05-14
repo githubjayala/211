@@ -19,9 +19,9 @@ jobs:
           script: |
             cd /home/deploy/211
             git pull origin master
-            docker compose down
-            docker compose up -d --build
-            docker compose ps
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
       - name: Deploy Nginx config
         uses: appleboy/ssh-action@v1.0.3
         with:

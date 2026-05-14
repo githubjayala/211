@@ -17,7 +17,6 @@ services:
       context: .
       dockerfile: gateway/Dockerfile
     container_name: 211_gateway
-    restart: unless-stopped
     env_file: .env.gateway
     depends_on:
       request-service:
@@ -38,6 +37,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+      start_period: 30s
 
   # Request Service
   request-service:
@@ -45,7 +45,6 @@ services:
       context: .
       dockerfile: request-service/Dockerfile
     container_name: 211_request_service
-    restart: unless-stopped
     env_file: .env.request-service
     expose:
       - "8000"
@@ -61,6 +60,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+      start_period: 30s
 
   # Notification Service
   notification-service:
@@ -68,7 +68,6 @@ services:
       context: .
       dockerfile: notification-service/Dockerfile
     container_name: 211_notification_service
-    restart: unless-stopped
     env_file: .env.notification-service
     expose:
       - "8000"
@@ -82,6 +81,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+      start_period: 30s
 
   # Location Service
   location-service:
@@ -89,7 +89,6 @@ services:
       context: .
       dockerfile: location-service/Dockerfile
     container_name: 211_location_service
-    restart: unless-stopped
     env_file: .env.location-service
     expose:
       - "8000"
@@ -103,6 +102,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+      start_period: 30s
 
   # Ticket Service
   ticket-service:
@@ -110,7 +110,6 @@ services:
       context: .
       dockerfile: ticket-service/Dockerfile
     container_name: 211_ticket_service
-    restart: unless-stopped
     env_file: .env.ticket-service
     expose:
       - "8000"
@@ -126,12 +125,12 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+      start_period: 30s
 
   # Postgres
   postgres:
     container_name: 211_postgres
     image: postgres:16
-    restart: unless-stopped
     env_file: .env.postgres
     ports:
       - "127.0.0.1:5432:5432"
@@ -144,13 +143,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   # RabbitMQ
   rabbitmq:
     container_name: 211_rabbitmq
     image: rabbitmq:3-management
     env_file: .env.rabbitmq
-    restart: unless-stopped
     ports:
       - "127.0.0.1:5672:5672"
       - "127.0.0.1:15672:15672"
@@ -163,3 +162,4 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s

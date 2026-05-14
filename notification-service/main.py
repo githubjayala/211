@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from utils.logger import get_logger
+from utils.middleware import TracingMiddleware
 import asyncio
 from consumer import start_consumer
 
@@ -19,6 +20,7 @@ async def lifespan(app: FastAPI):
 
 # FastAPI App
 app = FastAPI(lifespan=lifespan)
+app.add_middleware(TracingMiddleware)
 
 
 # Custom Exception

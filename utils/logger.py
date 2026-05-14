@@ -12,7 +12,8 @@ class StructuredFormatter(logging.Formatter):
         timestamp = datetime.utcnow().isoformat()
         level = record.levelname
         message = record.getMessage()
-        return f"{timestamp} | {level} | {self.service_name} | {message}"
+        trace_id = getattr(record, "trace_id", "-")
+        return f"{timestamp} | {level} | {self.service_name} | {trace_id} | {message}"
 
 
 def get_logger(service_name: str) -> logging.Logger:

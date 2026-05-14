@@ -3,6 +3,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from utils.logger import get_logger
+from utils.middleware import TracingMiddleware
 from api.v1.locations import router as location_router
 import httpx
 
@@ -21,6 +22,7 @@ async def lifespan(app: FastAPI):
 # FastAPI App
 app = FastAPI(lifespan=lifespan, redirect_slashes=False)
 app.include_router(location_router, prefix="/api/v1")
+app.add_middleware(TracingMiddleware)
 
 
 # Custom Exception

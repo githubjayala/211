@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from sqlalchemy import text
 from utils.logger import get_logger
+from utils.middleware import TracingMiddleware
 from database import create_tables, engine
 from api.v1.requests import router as requests_router
 
@@ -21,6 +22,7 @@ async def lifespan(app: FastAPI):
 # FastAPI App
 app = FastAPI(lifespan=lifespan, redirect_slashes=False)
 app.include_router(requests_router, prefix="/api/v1")
+app.add_middleware(TracingMiddleware)
 
 
 # Custom Exception

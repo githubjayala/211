@@ -27,9 +27,6 @@ services:
         condition: service_healthy
       ticket-service:
         condition: service_healthy
-    ports:
-      - "127.0.0.1:8000:8000"
-      - "127.0.0.1:8000:8000"
     networks:
       - civic_net
     healthcheck:
@@ -132,8 +129,6 @@ services:
     container_name: 211_postgres
     image: postgres:16
     env_file: .env.postgres
-    ports:
-      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -150,9 +145,6 @@ services:
     container_name: 211_rabbitmq
     image: rabbitmq:3-management
     env_file: .env.rabbitmq
-    ports:
-      - "127.0.0.1:5672:5672"
-      - "127.0.0.1:15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:

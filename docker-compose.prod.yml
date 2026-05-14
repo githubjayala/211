@@ -9,6 +9,8 @@
 services:
   gateway:
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
 
   request-service:
     restart: unless-stopped
